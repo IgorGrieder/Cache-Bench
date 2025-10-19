@@ -6,14 +6,15 @@ import (
 
 	"database/sql"
 
+	"github.com/IgorGrieder/Cache-Bench/internal/config"
 	_ "github.com/lib/pq"
 )
 
-func SetupPG() *sql.DB {
+func SetupPG(cfg *config.Config) *sql.DB {
 
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		cfg.HOST, 5432, cfg.USER, cfg.PG_PASS, cfg.DB_NAME)
+		cfg.HOST, cfg.PORT_PG, cfg.USER, cfg.PG_PASS, cfg.DB_NAME)
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
