@@ -11,7 +11,7 @@ import (
 func SetupRedis() *redis.Client {
 
 	redis := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", cfg.REDIS_ADDR, cfg.REDIS_PORT),
+		Addr:     fmt.Sprintf("%s:%d", "redis", 6379),
 		Password: "",
 		DB:       0,
 		Protocol: 2,
