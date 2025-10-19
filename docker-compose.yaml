@@ -1,0 +1,44 @@
+services:
+  db: 
+    image: postgres:latest 
+    container_name: pg_bench
+    environment:
+      POSTGRES_DB: leaky_bucket 
+      POSTGRES_USER: postgres 
+      POSTGRES_PASSWORD: none 
+    ports:
+      - "5432:5432" 
+    volumes:
+      - postgres_data_bench:/var/lib/postgresql/data 
+    restart: always 
+
+  redis:
+    image: redis:latest
+    container_name: redis_bench
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis_data_bench:/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - backend
+    
+  go-bench: 
+    build: .
+    container_name: go-bench
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment: 
+      - HASH=733e6f1d9d33bd2e754da2ba56aeb563718fc68f5c139f527e96a13a1b2671fb
+
+
+volumes:
+  redis_data_bench:
+  postgres_data_bench:
