@@ -24,7 +24,7 @@ func NewConfig() *Config {
 	host := getEnv("PG_HOST", "localhost")
 	portPG := parseInt(getEnv("PG_PORT", "5432"))
 	user := getEnv("PG_USER", "postgres")
-	dbname := getEnv("PG_DB", "leaky-bucket")
+	dbname := getEnv("PG_DB", "bench")
 	pgPass := getEnv("PG_PASS", "none")
 	hash := getEnv("HASH", "none")
 
