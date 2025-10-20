@@ -25,7 +25,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /test", h.HandlerTest)
+	mux.HandleFunc("GET /test/cache-aside", h.GetProductCacheAside)
+	mux.HandleFunc("GET /test/write-behind", h.UpdateProductWriteBehind)
+	mux.HandleFunc("GET /test/write-through", h.UpdateProductWriteThrough)
 
 	svr := &http.Server{Addr: fmt.Sprintf(":%d", cfg.PORT), Handler: mux}
 
