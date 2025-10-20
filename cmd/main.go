@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/IgorGrieder/Cache-Bench/cmd/handlers"
 	"github.com/IgorGrieder/Cache-Bench/internal/config"
 	"github.com/IgorGrieder/Cache-Bench/internal/database"
 )
@@ -19,12 +20,12 @@ func main() {
 	redis := database.SetupRedis()
 	pg := database.SetupPG(cfg)
 
+	// Handler
+	h := handlers.NewHandler(redis, pg)
+
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /test", func(http.ResponseWriter, *http.Request) {
-		redis.Set()
-		pg.BeginTx()
-	})
+	mux.HandleFunc("POST /test", h.HandlerTest)
 
 	svr := &http.Server{Addr: fmt.Sprintf(":%d", cfg.PORT), Handler: mux}
 
