@@ -61,7 +61,15 @@ func (h *handler) GetProductCacheAside(w http.ResponseWriter, r *http.Request) {
 	productJSON, _ := json.Marshal(product)
 
 	// Set with a TTL of 5 minutes
-	h.redis.Set(context.Background(), cacheKey, productJSON, 5*time.Minute)
+	err = h.redis.Set(context.Background(), cacheKey, productJSON, 5*time.Minute).Err()
+	if err != nil {
+		// In a real prod environment a more robust way is prefeered
+		// if the cache write fails after the DB write succeeds.
+
+		log.Printf("CRITICAL: DB updated but cache failed: %v", err)
+		http.Error(w, "Failed to update cache", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(product)
@@ -84,11 +92,20 @@ func (h *handler) UpdateProductWriteThrough(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Write the same data to the cache
-	productJSON, _ := json.Marshal(product)
+	productJSON, err := json.Marshal(product)
+	if err != nil {
+		// In a real prod environment a more persistent way of this double write should be enforced
+		// if the cache write fails after the DB write succeeds.
+
+		http.Error(w, "Could not process product data", http.StatusInternalServerError)
+		return
+	}
+
 	err = h.redis.Set(context.Background(), cacheKey, productJSON, 5*time.Minute).Err()
 	if err != nil {
 		// In a real prod environment a more persistent way of this double write should be enforced
 		// if the cache write fails after the DB write succeeds.
+
 		log.Printf("CRITICAL: DB updated but cache failed: %v", err)
 		http.Error(w, "Failed to update cache", http.StatusInternalServerError)
 		return
